@@ -21,3 +21,13 @@ sudo apt install maven -y
 sudo apt install software-properties-common
 sudo add-apt-repository --yes --update ppa:ansible/ansible
 sudo apt install ansible -y
+
+#check versions
+python3 --version
+git --version
+mvn --version
+ansible --version
+
+java --version
+update-alternatives --list java
+echo "add above java path as $JAVA_HOME in .bashrc"
