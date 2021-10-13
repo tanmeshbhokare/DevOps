@@ -18,8 +18,6 @@ Use above bash script to install below apps.
 
 run prepare.sh from your ubuntu terminal
 
-make sure you have pulse-secure connected
-
 after running prepare.sh -> need to run one manual step
 
 ---------------------------------------------------------------------------------------
