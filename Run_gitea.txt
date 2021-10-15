@@ -1,0 +1,71 @@
+sudo su
+
+GITEA_WORK_DIR=/var/lib/gitea/ /usr/local/bin/gitea web -c /etc/gitea/app.ini &
+
+9. Install MySQL for use by gitea
+devops@devops-VirtualBox:~$ sudo apt install mysql-server
+
+10. Set the password for root user
+devops@devops-VirtualBox:~$ sudo mysql 
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH 
+mysql_native_password By 'password';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.00 sec)
+Sensitivity:
+
+mysql> exit
+Bye
+
+
+11. Create a gitea user to maintain database for gitea, with all privileges
+devops@devops-VirtualBox:~$ mysql -u root -p
+Enter password: <password>
+mysql> SELECT user,authentication_string,plugin,host FROM mysql.user;
++------------------+-------------------------------------------+-----------------------+-----------+
+| user | authentication_string | plugin | host |
++------------------+-------------------------------------------+-----------------------+-----------+
+| root | *2470C0C06DEE42FD1618BB99005ADCA2EC9D1E19 | mysql_native_password | localhost |
+| mysql.session | *THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE | mysql_native_password | localhost |
+| mysql.sys | *THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE | mysql_native_password | localhost |
+| debian-sys-maint | *A966F094C4900DA041BAE7D018FB349A06E00058 | mysql_native_password | localhost |
++------------------+-------------------------------------------+-----------------------+-----------+
+4 rows in set (0.00 sec)
+mysql> CREATE USER 'gitea'@'localhost' IDENTIFIED BY 'password';
+Query OK, 0 rows affected (0.01 sec)
+mysql> SELECT user,authentication_string,plugin,host FROM mysql.user;
++------------------+-------------------------------------------+-----------------------+-----------+
+| user | authentication_string | plugin | host |
++------------------+-------------------------------------------+-----------------------+-----------+
+| root | *2470C0C06DEE42FD1618BB99005ADCA2EC9D1E19 | mysql_native_password | localhost |
+| mysql.session | *THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE | mysql_native_password | localhost |
+| mysql.sys | *THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE | mysql_native_password | localhost |
+| debian-sys-maint | *A966F094C4900DA041BAE7D018FB349A06E00058 | mysql_native_password | localhost |
+| gitea | *2470C0C06DEE42FD1618BB99005ADCA2EC9D1E19 | mysql_native_password | localhost |
++------------------+-------------------------------------------+-----------------------+-----------+
+5 rows in set (0.00 sec)
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'gitea'@'localhost' WITH GRANT OPTION;
+Query OK, 0 rows affected (0.00 sec)
+mysql> exit;
+Bye
+12. Create Database with respect to gitea user
+devops@devops-VirtualBox:~$ mysql -u gitea -p
+Enter password:
+mysql> CREATE DATABASE mygitdb;
+Query OK, 1 row affected (0.00 sec)
+mysql> exit;
+Bye
+
+13. Check whether MySQL server is running
+devops@devops-VirtualBox:~$ systemctl status mysql.service
+● mysql.service - MySQL Community Server
+Loaded: loaded (/lib/systemd/system/mysql.service; enabled; vendor preset: en
+Active: active (running) since Sat 2021-07-31 20:08:57 IST; 34min ago
+Main PID: 16418 (mysqld)
+14. Access gitea from the browser using the url
+http://localhost:3000/
+In the first screen you would see following required settings.
+Our MySQL Database Username: gitea
+Our MySQL Database User Password: password
+Our MySQL Database: mygitdb
