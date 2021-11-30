@@ -2,6 +2,88 @@ sudo su
 
 GITEA_WORK_DIR=/var/lib/gitea/ /usr/local/bin/gitea web -c /etc/gitea/app.ini &
 
+1. Download Gitea software
+devops@devops-VirtualBox:~$ wget https://dl.gitea.io/gitea/1.14.5/gitea-1.14.5-linux-amd64
+2. Download the GPG key server and signature file that ends with asc, and verify the signature.
+devops@devops-VirtualBox:~$ gpg --keyserver keys.openpgp.org --recv 7C9E68152594688862D62AF62D9AE806EC1592E2
+gpg: key 2D9AE806EC1592E2: public key "Teabot <teabot@gitea.io>" imported
+gpg: Total number processed: 1
+gpg: imported: 1
+devops@devops-VirtualBox:~$ wget https://dl.gitea.io/gitea/1.14.5/gitea-1.14.5-linux-amd64.asc
+devops@devops-VirtualBox:~$ ls gitea*
+gitea-1.14.5-linux-amd64 gitea-1.14.5-linux-amd64.asc
+devops@devops-VirtualBox:~$ gpg --verify gitea-1.14.5-linux-amd64.asc gitea-1.14.5-linux-amd64
+gpg: Signature made Friday 16 July 2021 02:25:48 PM IST
+gpg: using RSA key CC64B1DB67ABBEECAB24B6455FC346329753F4B0
+gpg: Good signature from "Teabot <teabot@gitea.io>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg: There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 7C9E 6815 2594 6888 62D6 2AF6 2D9A E806 EC15 92E2
+Subkey fingerprint: CC64 B1DB 67AB BEEC AB24 B645 5FC3 4632 9753 F4B0
+3. Rename the file with primary name gitea and make it executble file
+devops@devops-VirtualBox:~$ mv gitea-1.14.5-linux-amd64 gitea
+devops@devops-VirtualBox:~$ ls -l gitea
+-rw-rw-r-- 1 devops devops 108023432 Jul 16 14:26 gitea
+devops@devops-VirtualBox:~$ chmod +x gitea
+devops@devops-VirtualBox:~$ ls -l gitea
+-rwxrwxr-x 1 devops devops 108023432 Jul 16 14:26 gitea
+Sensitivity: Internal & Restricted
+4. Ensure availability of git on your machine
+devops@devops-VirtualBox:~$ git --version
+git version 2.17.1
+5. Create a git user using below command
+sudo adduser \ --system \ --shell /bin/bash \ --gecos 'Git Version Control' \ --group \ --disabled-password \ --home /home/git \ git
+devops@devops-VirtualBox:~$ sudo adduser \
+> --system \
+> --shell /bin/bash \
+> --gecos 'Git Version Control' \
+> --group \
+> --disabled-password \
+> --home /home/git \
+> git
+[sudo] password for devops:
+Adding system user `git' (UID 123) ...
+Adding new group `git' (GID 127) ...
+Adding new user `git' (UID 123) with group `git' ...
+Creating home directory `/home/git' ...
+6. Create required directory structure
+devops@devops-VirtualBox:~$ sudo su
+root@devops-VirtualBox:/home/devops# mkdir -p /var/lib/gitea/{custom,data,log}
+root@devops-VirtualBox:/home/devops# ls /var/lib/gitea/
+custom data log
+root@devops-VirtualBox:/home/devops# ls -l /var/lib/gitea/
+total 12
+drwxr-xr-x 2 root root 4096 Jul 31 19:21 custom
+drwxr-xr-x 2 root root 4096 Jul 31 19:21 data
+drwxr-xr-x 2 root root 4096 Jul 31 19:21 log
+root@devops-VirtualBox:/home/devops# chown -R git:git /var/lib/gitea/
+Sensitivity: Internal & Restricted
+root@devops-VirtualBox:/home/devops# ls -l /var/lib/gitea/
+total 12
+drwxr-xr-x 2 git git 4096 Jul 31 19:21 custom
+drwxr-xr-x 2 git git 4096 Jul 31 19:21 data
+drwxr-xr-x 2 git git 4096 Jul 31 19:21 log
+root@devops-VirtualBox:/home/devops# chmod -R 750 /var/lib/gitea/
+root@devops-VirtualBox:/home/devops# ls -l /var/lib/gitea/
+total 12
+drwxr-x--- 2 git git 4096 Jul 31 19:21 custom
+drwxr-x--- 2 git git 4096 Jul 31 19:21 data
+drwxr-x--- 2 git git 4096 Jul 31 19:21 log
+root@devops-VirtualBox:/home/devops# mkdir /etc/gitea
+root@devops-VirtualBox:/home/devops# chown root:git /etc/gitea
+root@devops-VirtualBox:/home/devops# chmod 770 /etc/gitea
+root@devops-VirtualBox:/home/devops# ls -l /etc
+drwxrwx--- 2 root git 4096 Jul 31 19:23 gitea
+root@devops-VirtualBox:/home/devops# exit
+exit
+devops@devops-VirtualBox:~$
+7. Copy Gitea binary to global location
+devops@devops-VirtualBox:~$ sudo cp gitea /usr/local/bin/gitea
+
+8. Start gitea from command line
+devops@devops-VirtualBox:~$ sudo su
+root@devops-VirtualBox:/home/devops# GITEA_WORK_DIR=/var/lib/gitea/ /usr/local/bin/gitea web -c /etc/gitea/app.ini &
+
 9. Install MySQL for use by gitea
 devops@devops-VirtualBox:~$ sudo apt install mysql-server
 
